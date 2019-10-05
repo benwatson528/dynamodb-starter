@@ -10,21 +10,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 public class EmbeddedDynamoService extends ExternalResource {
   private static Logger LOGGER = LoggerFactory.getLogger(EmbeddedDynamoService.class);
   private AmazonDynamoDB dynamoDBService;
 
-  public DynamoDB getDynamoDBClient() {
-    return new DynamoDB(this.dynamoDBService);
-  }
-
-  @Override
-  protected void before() {
+  public EmbeddedDynamoService() {
     LOGGER.info("Setting up embedded DynamoDB instance");
     this.dynamoDBService = DynamoDBEmbedded.create().amazonDynamoDB();
     createTable("test-table");
+  }
+
+  public DynamoDB getDynamoDBClient() {
+    return new DynamoDB(this.dynamoDBService);
   }
 
   private void createTable(String tableName) {
@@ -44,8 +42,7 @@ public class EmbeddedDynamoService extends ExternalResource {
     LOGGER.info("Created table {}", tableName);
   }
 
-  @Override
-  protected void after() {
+  public void shutdown() {
     LOGGER.info("Closing embedded DynamoDB instance");
     if (this.dynamoDBService != null) {
       this.dynamoDBService.shutdown();

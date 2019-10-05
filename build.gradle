@@ -47,7 +47,3 @@ task cucumber() {
         }
     }
 }
-
-test {
-    systemProperty "sqlite4java.library.path", "libs/sqlite4java-392"
-}

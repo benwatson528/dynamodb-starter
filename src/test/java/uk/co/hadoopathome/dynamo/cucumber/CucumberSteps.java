@@ -4,6 +4,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -11,10 +12,10 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.co.hadoopathome.dynamo.service.EmbeddedDynamoService;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static uk.co.hadoopathome.dynamo.cucumber.CucumberRunner.EMBEDDED_DYNAMO_SERVER;
 
 public class CucumberSteps {
   private static final String TABLE_NAME = "test-table";
@@ -23,10 +24,13 @@ public class CucumberSteps {
 
   private Table table;
   private Item retrievedItem;
+  private EmbeddedDynamoService embeddedDynamoService;
 
   @Before
   public void before() {
-    this.dynamoDB = EMBEDDED_DYNAMO_SERVER.getDynamoDBClient();
+    System.setProperty("sqlite4java.library.path", "libs/sqlite4java-392");
+    this.embeddedDynamoService = new EmbeddedDynamoService();
+    this.dynamoDB = this.embeddedDynamoService.getDynamoDBClient();
   }
 
   @Given("the embedded DynamoDB instance is running")
@@ -59,5 +63,10 @@ public class CucumberSteps {
   @Then("I can confirm the data was correctly stored")
   public void iCanConfirmTheDataWasCorrectlyStored() {
     assertEquals("Bob", this.retrievedItem.getString("PetName"));
+  }
+
+  @After
+  public void after() {
+    this.embeddedDynamoService.shutdown();
   }
 }
