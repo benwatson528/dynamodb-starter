@@ -1,0 +1,53 @@
+plugins {
+    id 'java'
+}
+
+group 'uk.co.hadoopathome.dynamo'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+def cucumberVersion = '4.7.2'
+def logVersion = '2.7'
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'http://dynamodb-local.s3-website-us-west-2.amazonaws.com/release'
+    }
+}
+
+dependencies {
+    //LOG DEPENDENCIES
+    testImplementation "org.apache.logging.log4j:log4j-api:${logVersion}"
+    testImplementation "org.apache.logging.log4j:log4j-core:${logVersion}"
+    testImplementation "org.apache.logging.log4j:log4j-slf4j-impl:${logVersion}"
+
+    //TEST DEPENDENCIES
+    testImplementation "com.amazonaws:DynamoDBLocal:1.11.0"
+    testImplementation "junit:junit:4.12"
+    testImplementation "io.cucumber:cucumber-java:${cucumberVersion}"
+    testImplementation "io.cucumber:cucumber-junit:${cucumberVersion}"
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+
+    }
+}
+
+task cucumber() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.test.output
+            args = ['--plugin', 'pretty', '--glue', 'uk.co.hadoopathome.dynamo.cucumber', 'src/test/resources/features']
+        }
+    }
+}
+
+test {
+    systemProperty "sqlite4java.library.path", "libs/sqlite4java-392"
+}
