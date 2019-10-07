@@ -1,6 +1,6 @@
 # DynamoDB Starter
 
-A demonstration of using DynamoDB as a JUnit `ExternalService`.
+A demonstration of using DynamoDB locally with Cucumber.
 
 Sources:
  - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.Maven.html
